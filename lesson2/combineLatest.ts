@@ -14,14 +14,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor() {}
 
   ngOnInit(): void {
-    const source$ = of('A', 'B', 'C');
-    const another$ = of('X', 'Y', 'Z');
+    const observable1$ = of('A', 'B', 'C');
+    const observable2$ = of('X', 'Y', 'Z');
 
-    source$.pipe(
-      withLatestFrom(another$)
-    ).subscribe(([valueFromSource, latestValueFromAnother]) => {
-      console.log(valueFromSource, latestValueFromAnother);
-    });
+    const combined$ = combineLatest([observable1$, observable2$])
+    .subscribe(value => console.log(value))
   }
 
   ngAfterViewInit(): void {
