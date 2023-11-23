@@ -1,0 +1,15 @@
+<input type="text" #input>
+
+<div class="container">
+  <div class="items">
+    <div class="card" *ngFor="let item of responseData">
+      <div class="card__img">
+        <img src="{{item.owner.avatar_url}}" alt="{{item.name}}">
+      </div>
+      <div class="card__body">
+        <h5 class="card__body-title">{{item.name}}</h5>
+        <p class="card__body-text">{{item.description}}</p>
+      </div>
+    </div>
+  </div>
+</div>
