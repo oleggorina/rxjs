@@ -3,8 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { defer, bufferCount, distinctUntilChanged, exhaustMap, concatAll, concatMap, mergeAll, mergeMap, switchMap, filter, from, fromEvent, iif, interval, map, Observable, of, Subject, toArray, skip, take, debounceTime, tap, zip, merge, combineLatest, startWith, withLatestFrom, reduce, takeUntil, catchError, throwError, BehaviorSubject, ReplaySubject, AsyncSubject } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
-import { DragAndDropService } from '../../lesson4/drag-and-drop.service';
-import { GithubItemInterface, GitHubResponseInterface } from './interface';
 
 @Component({
   selector: 'app-root',
