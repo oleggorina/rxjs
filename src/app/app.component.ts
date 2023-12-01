@@ -1,10 +1,8 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { defer, bufferCount, distinctUntilChanged, exhaustMap, concatAll, concatMap, mergeAll, mergeMap, switchMap, filter, from, fromEvent, iif, interval, map, Observable, of, Subject, toArray, skip, take, debounceTime, tap, zip, merge, combineLatest, startWith, withLatestFrom, reduce, takeUntil, catchError, throwError, BehaviorSubject, ReplaySubject, AsyncSubject } from 'rxjs';
+import { defer, bufferCount, shareReplay, share, distinctUntilChanged, exhaustMap, concatAll, concatMap, mergeAll, mergeMap, switchMap, filter, from, fromEvent, iif, interval, map, Observable, of, Subject, toArray, skip, take, debounceTime, tap, zip, merge, combineLatest, startWith, withLatestFrom, reduce, takeUntil, catchError, throwError, BehaviorSubject, ReplaySubject, AsyncSubject, ConnectableObservable, timer, animationFrameScheduler, takeWhile } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
-import { DragAndDropService } from '../../lesson4/drag-and-drop.service';
-import { GithubItemInterface, GitHubResponseInterface } from './interface';
 
 @Component({
   selector: 'app-root',
@@ -13,49 +11,54 @@ import { GithubItemInterface, GitHubResponseInterface } from './interface';
 })
 export class AppComponent implements OnInit, AfterViewInit {
   title = 'rxjs';
+  @ViewChild('block') block!: ElementRef;
 
   constructor() {}
 
   ngOnInit(): void {
-    const subject = new Subject<number>();
-    subject.subscribe(data => console.log('Observer 1: ', data));
-    subject.next(1); // Observer 1: 1
-    subject.next(2); // Observer 1: 2
-    subject.subscribe(data => console.log('Observer 2: ', data));
-    subject.next(3);
-
-    const behaviorSubject = new BehaviorSubject<number>(0);
-    behaviorSubject.subscribe(data => console.log('Observer 1: ', data)); // Observer 1: 0
-    behaviorSubject.next(1); // Observer 1: 1
-    behaviorSubject.next(2); // Observer 1: 2
-    behaviorSubject.subscribe(data => console.log('Observer 2: ', data)); // Observer 2: 2
-    behaviorSubject.next(3); // Observer 1: 3, Observer 2: 3
-
-    const replaySubject = new ReplaySubject<number>(2);
-    replaySubject.next(1);
-    replaySubject.next(2);
-    replaySubject.next(3);
-    replaySubject.subscribe(data => console.log('Observer 1: ', data)); // Observer 1: 2, Observer 1: 3
-    replaySubject.next(4); // Observer 1: 4
-
-    const asyncSubject = new AsyncSubject<number>();
-    asyncSubject.subscribe({
-      next: value => console.log('Observer 1: ', value),
-      complete: () => console.log('Observer 1 completed'),
-    });
-    asyncSubject.next(1);
-    asyncSubject.next(2);
-    asyncSubject.next(3);
-    // Even though values were emitted, nothing is printed yet
-    asyncSubject.subscribe({
-      next: value => console.log('Observer 2: ', value),
-      complete: () => console.log('Observer 2 completed'),
-    });
-    // Nothing is printed yet
-    asyncSubject.complete(); // Completing the subject
+    
   }
 
   ngAfterViewInit(): void {
-    
+    const div = this.block.nativeElement as HTMLDivElement;
+    this.animationWave(div).subscribe({
+      complete: () => console.log('completed')
+    })
+  }
+
+  animationWave(element: HTMLDivElement) {
+    return this.duration(20000)
+    .pipe(
+      map(this.animationFn),
+      map(this.distance(100)),
+      tap(frame => element.style.transform = `translate3d(0, ${frame}px, 0)`)
+    )
+  }
+
+  private msElapsed(schedule = animationFrameScheduler) {
+    return defer(() => {
+      const start = schedule.now()
+
+      return interval(0, animationFrameScheduler)
+      .pipe(
+        map(() => schedule.now() - start)
+      )
+    })
+  }
+
+  private duration(ms: number, schedule = animationFrameScheduler) {
+    return this.msElapsed(schedule)
+    .pipe(
+      map(time => time / ms),
+      takeWhile(percentage => percentage <= 1)
+    )
+  }
+
+  private distance(px: number) {
+    return (percentage: number) => percentage * px;
+  }
+
+  private animationFn(percentage: number) {
+    return Math.sin(-13 * (percentage + 1) * Math.PI * 2) * Math.pow(2, -10 * percentage) + 1;
   }
 }
